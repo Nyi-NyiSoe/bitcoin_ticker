@@ -3,13 +3,36 @@ import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
 import 'coin_data.dart';
 
+const apiKey = '03E5EE9C-D4AC-4B1E-912E-0D7883DEFC2B';
+
 class PriceScreen extends StatefulWidget {
   @override
   _PriceScreenState createState() => _PriceScreenState();
 }
 
 class _PriceScreenState extends State<PriceScreen> {
+
+  double? rate ;
+  String? cryptoCurrency = 'BTC';
   String? selectedCurrency = 'USD';
+
+  Future<dynamic> getExchangeRate() async{
+    setState(() async{
+         CoinData coindata = CoinData(url: "https://rest.coinapi.io/v1/exchangerate/$cryptoCurrency/$selectedCurrency?apikey=$apiKey");
+    var exchangeRate = await coindata.getCoinData();
+    rate = exchangeRate['rate'];
+    });
+    print(rate);
+  }
+
+  
+
+  @override
+  void initState(){
+    super.initState();
+    getExchangeRate();
+    
+  }
 
   DropdownButton<dynamic> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
@@ -68,10 +91,10 @@ class _PriceScreenState extends State<PriceScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: const Padding(
+              child:  Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 BTC = $rate USD',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
