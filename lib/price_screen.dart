@@ -3,35 +3,30 @@ import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
 import 'coin_data.dart';
 
-const apiKey = '03E5EE9C-D4AC-4B1E-912E-0D7883DEFC2B';
-
 class PriceScreen extends StatefulWidget {
   @override
   _PriceScreenState createState() => _PriceScreenState();
 }
 
 class _PriceScreenState extends State<PriceScreen> {
+  String bitcoinValueInUSD = '?';
+  String selectedCurrency = 'USD';
 
-  double? rate ;
-  String? cryptoCurrency = 'BTC';
-  String? selectedCurrency = 'USD';
-
-  Future<dynamic> getExchangeRate() async{
-    setState(() async{
-         CoinData coindata = CoinData(url: "https://rest.coinapi.io/v1/exchangerate/$cryptoCurrency/$selectedCurrency?apikey=$apiKey");
-    var exchangeRate = await coindata.getCoinData();
-    rate = exchangeRate['rate'];
-    });
-    print(rate);
+  void getData() async {
+    try {
+      double data = await CoinData().getCoinData(selectedCurrency);
+      setState(() {
+        bitcoinValueInUSD = data.toStringAsFixed(0);
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
-  
-
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    getExchangeRate();
-    
+    getData();
   }
 
   DropdownButton<dynamic> androidDropdown() {
@@ -48,12 +43,18 @@ class _PriceScreenState extends State<PriceScreen> {
     return DropdownButton<dynamic>(
       value: selectedCurrency,
       items: dropdownItems,
+      
       onChanged: (value) {
+        
         setState(() {
           selectedCurrency = value;
+          getData();
         });
         print(value);
       },
+      
+
+      
     );
   }
 
@@ -68,6 +69,7 @@ class _PriceScreenState extends State<PriceScreen> {
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
         print(selectedIndex);
+        getData();
       },
       children: pickerItems,
     );
@@ -91,15 +93,19 @@ class _PriceScreenState extends State<PriceScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child:  Padding(
+              child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = $rate USD',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
+                child: Column(
+                  children: [
+                    Text(
+                      '1 BTC = $bitcoinValueInUSD $selectedCurrency',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
