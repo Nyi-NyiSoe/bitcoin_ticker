@@ -1,6 +1,6 @@
 # bitcoin_ticker
 
-A new Flutter project.
+It shows bitcoin exchange rate.
 
 ## Getting Started
 
